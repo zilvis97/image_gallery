@@ -1,17 +1,14 @@
 # image_gallery
 
-A new Flutter project.
+## How to run this application:
 
-## Getting Started
+From the terminal:
 
-This project is a starting point for a Flutter application.
+- Add support for web if it currently does not exist - `flutter create --platforms web .`
+- Build the application - `flutter build web`
+- Run it - `flutter run` and select `chrome` as the target device.
 
-A few resources to get you started if this is your first Flutter project:
+From VSCode:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# image_gallery
+- Select target device as `chrome`
+- Press `Start` under `Run and Debug` tab.
