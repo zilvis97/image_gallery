@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_gallery/models/image_data.dart';
+import 'package:image_gallery/providers/authors_provider.dart';
 import 'package:image_gallery/providers/limit_provider.dart';
 import 'package:image_gallery/utils/image_service.dart';
 import 'package:image_gallery/widgets/image_item.dart';
@@ -47,7 +48,7 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
       setState(() => _isLoading = true);
 
       final limit = ref.read(requestLimitProvider);
-      final fetchedImages = await fetchImages(page: _currentPage, limit: limit);
+      final fetchedImages = await fetchImages(ref, page: _currentPage);
       print('Fetched ${fetchedImages?.length} images');
 
       setState(() {
@@ -72,17 +73,35 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final filteredAuthors = ref.watch(selectedAuthorsProvider);
+    final filteredImages = filteredAuthors.isEmpty
+        ? _images
+        : _images.where((image) => filteredAuthors.contains(image.author)).toList();
+
     return ListView.builder(
       controller: _scrollController,
-      itemCount: _images.length + 1,
+      itemCount: filteredImages.length + 1,
       itemBuilder: (context, index) {
-        if (index < _images.length) {
-          return ImageItem(_images[index]);
+        if (index < filteredImages.length) {
+          return ImageItem(filteredImages[index]);
         }
-        return Center(
-          child: _hasMore
-              ? const CircularProgressIndicator()
-              : const Text("You're all caught up. No more images to load."),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Center(
+            child: _hasMore
+                ? filteredAuthors.isNotEmpty
+                    ? Text(
+                        "You're all caught up with this author's work!",
+                        style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                      )
+                    : const CircularProgressIndicator()
+                : Text(
+                    "You're all caught up. No more images to load.",
+                    style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                  ),
+          ),
         );
       },
     );

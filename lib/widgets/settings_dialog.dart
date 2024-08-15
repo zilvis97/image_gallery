@@ -31,9 +31,7 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
                   Navigator.of(context).pop();
                 }
               : null,
-          child: const Text(
-            'Apply',
-          ),
+          child: const Text('Apply'),
         ),
       ],
       title: const Text('Settings'),
