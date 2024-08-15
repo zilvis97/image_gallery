@@ -10,7 +10,7 @@ class AuthorsNotifier extends StateNotifier<Set<String>> {
   }
 }
 
-/// All available authors provider.
+/// Provides all the authors whose pictures have been loaded so far.
 final authorsProvider = StateNotifierProvider<AuthorsNotifier, Set<String>>((ref) {
   return AuthorsNotifier();
 });
@@ -23,7 +23,7 @@ class SelectedAuthorsNotifier extends StateNotifier<Set<String>> {
   }
 }
 
-/// All selected authors in the filter.
+/// Provides the set of selected authors in the filter.
 final selectedAuthorsProvider = StateNotifierProvider<SelectedAuthorsNotifier, Set<String>>((ref) {
   return SelectedAuthorsNotifier();
 });
