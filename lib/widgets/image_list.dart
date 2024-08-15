@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_gallery/models/image_data.dart';
+import 'package:image_gallery/providers/limit_provider.dart';
 import 'package:image_gallery/utils/image_service.dart';
 import 'package:image_gallery/widgets/image_item.dart';
 
-class ImageGallery extends StatefulWidget {
+class ImageGallery extends ConsumerStatefulWidget {
   const ImageGallery({super.key});
 
   @override
-  State<ImageGallery> createState() => _ImageGalleryState();
+  ConsumerState<ImageGallery> createState() => _ImageGalleryState();
 }
 
-class _ImageGalleryState extends State<ImageGallery> {
+class _ImageGalleryState extends ConsumerState<ImageGallery> {
   final List<ImageData> _images = [];
   var _currentPage = 1;
-  final _limit = 5;
   var _isLoading = false;
   var _hasMore = true;
 
@@ -38,30 +39,34 @@ class _ImageGalleryState extends State<ImageGallery> {
   }
 
   void _loadImages() async {
-    // To prevent accidental additional calls.
-    // This might happen when the user is scrolling and the widget gets rebuilt multiple times.
+    // To prevent accidental additional calls. This might happen when the user
+    // is scrolling and the widget gets rebuilt multiple times.
     if (_isLoading || !_hasMore) return;
 
     try {
       setState(() => _isLoading = true);
 
-      final fetchedImages = await fetchImages(page: _currentPage, limit: _limit);
+      final limit = ref.read(requestLimitProvider);
+      final fetchedImages = await fetchImages(page: _currentPage, limit: limit);
+      print('Fetched ${fetchedImages?.length} images');
 
       setState(() {
         _images.addAll(fetchedImages!);
-        if (fetchedImages.length < _limit) {
+        if (fetchedImages.length < limit) {
           _hasMore = false;
         }
         _isLoading = false;
         _currentPage++;
       });
     } catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('test')),
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Center(child: Text('test')),
+            padding: EdgeInsets.all(16),
+          ),
         );
-      }
     }
   }
 
