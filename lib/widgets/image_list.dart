@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_gallery/exceptions/offline_exception.dart';
 import 'package:image_gallery/models/image_data.dart';
 import 'package:image_gallery/providers/authors_provider.dart';
 import 'package:image_gallery/providers/limit_provider.dart';
 import 'package:image_gallery/utils/image_service.dart';
+import 'package:image_gallery/utils/show_flushbar.dart';
 import 'package:image_gallery/widgets/image_item.dart';
 
 class ImageGallery extends ConsumerStatefulWidget {
@@ -49,7 +51,6 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
 
       final limit = ref.read(requestLimitProvider);
       final fetchedImages = await fetchImages(ref, page: _currentPage);
-      print('Fetched ${fetchedImages?.length} images');
 
       setState(() {
         _images.addAll(fetchedImages!);
@@ -59,15 +60,12 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
         _isLoading = false;
         _currentPage++;
       });
+    } on IsOfflineException {
+      showSnackbar(context, message: "You're offline. Please go online and try again");
     } catch (error) {
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          const SnackBar(
-            content: Center(child: Text('test')),
-            padding: EdgeInsets.all(16),
-          ),
-        );
+      if (context.mounted) {
+        showSnackbar(context, message: 'An error has occurred while fetching the images');
+      }
     }
   }
 

@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_gallery/exceptions/offline_exception.dart';
 import 'package:image_gallery/models/image_data.dart';
 import 'package:image_gallery/providers/authors_provider.dart';
 import 'package:image_gallery/providers/limit_provider.dart';
+import 'package:universal_html/html.dart' as html;
 
 Future<List<ImageData>?> fetchImages(WidgetRef ref, {required int page}) async {
   final limit = ref.read(requestLimitProvider);
@@ -14,7 +16,7 @@ Future<List<ImageData>?> fetchImages(WidgetRef ref, {required int page}) async {
 
   final res = await http.get(url, headers: {'Content-Type': 'application/json'});
 
-  if (res.statusCode == 200) {
+  if (res.statusCode == html.HttpStatus.ok) {
     final body = jsonDecode(res.body);
     if (body.isNotEmpty) {
       for (final image in body) {
@@ -31,6 +33,8 @@ Future<List<ImageData>?> fetchImages(WidgetRef ref, {required int page}) async {
       }
       return images;
     }
+  } else if (res.statusCode == html.HttpStatus.gatewayTimeout) {
+    throw IsOfflineException();
   } else {
     throw Exception('The API threw an exception: ${res.body}');
   }

@@ -10,16 +10,11 @@ class ImageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(64),
-      child: Column(
-        children: [
-          Text(image.id),
-          CachedNetworkImage(
-            imageUrl: image.downloadUrl,
-            placeholder: (_, __) => const Icon(Icons.photo_outlined),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 32),
+      child: CachedNetworkImage(
+        imageUrl: image.downloadUrl,
+        placeholder: (_, __) => const Icon(Icons.photo_outlined),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
     );
   }
