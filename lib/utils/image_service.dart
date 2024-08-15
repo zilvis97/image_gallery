@@ -8,9 +8,9 @@ import 'package:image_gallery/providers/authors_provider.dart';
 import 'package:image_gallery/providers/limit_provider.dart';
 import 'package:universal_html/html.dart' as html;
 
+/// Fetches images from the website.
 Future<List<ImageData>?> fetchImages(WidgetRef ref, {required int page}) async {
   final limit = ref.read(requestLimitProvider);
-
   final url = Uri.parse('https://picsum.photos/v2/list?page=$page&limit=$limit');
   List<ImageData> images = [];
 
@@ -29,6 +29,8 @@ Future<List<ImageData>?> fetchImages(WidgetRef ref, {required int page}) async {
           downloadUrl: image['download_url'],
         );
         images.add(imageData);
+        // Add to the set of all available authors, this is later used for
+        // displaying the filter.
         ref.read(authorsProvider.notifier).addAuthor(imageData.author);
       }
       return images;

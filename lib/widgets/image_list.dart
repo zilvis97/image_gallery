@@ -5,7 +5,7 @@ import 'package:image_gallery/models/image_data.dart';
 import 'package:image_gallery/providers/authors_provider.dart';
 import 'package:image_gallery/providers/limit_provider.dart';
 import 'package:image_gallery/utils/image_service.dart';
-import 'package:image_gallery/utils/show_flushbar.dart';
+import 'package:image_gallery/utils/show_snackbar.dart';
 import 'package:image_gallery/widgets/image_item.dart';
 
 class ImageGallery extends ConsumerStatefulWidget {
@@ -78,30 +78,38 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
         ? _images
         : _images.where((image) => filteredAuthors.contains(image.author)).toList();
 
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: filteredImages.length + 1,
-      itemBuilder: (context, index) {
-        if (index < filteredImages.length) {
-          return ImageItem(filteredImages[index]);
-        }
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Center(
-            child: _hasMore
-                ? filteredAuthors.isNotEmpty
-                    ? Text(
-                        "You're all caught up with this author's work!",
-                        style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
-                      )
-                    : const CircularProgressIndicator()
-                : Text(
-                    "You're all caught up. No more images to load.",
-                    style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
-                  ),
-          ),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          _images.clear();
+        });
+        return _loadImages();
       },
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: filteredImages.length + 1,
+        itemBuilder: (context, index) {
+          if (index < filteredImages.length) {
+            return ImageItem(filteredImages[index]);
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: _hasMore
+                  ? filteredAuthors.isNotEmpty
+                      ? Text(
+                          "You're all caught up with this author's work!",
+                          style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                        )
+                      : const CircularProgressIndicator()
+                  : Text(
+                      "You're all caught up. No more images to load.",
+                      style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                    ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

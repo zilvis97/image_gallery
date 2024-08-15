@@ -26,7 +26,7 @@ class _FiltersDrawerState extends ConsumerState<FiltersDrawer> {
       elevation: 32,
       width: 500,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
