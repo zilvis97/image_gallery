@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery/models/image_data.dart';
+import 'package:image_gallery/utils/image_service.dart';
 import 'package:image_gallery/utils/show_snackbar.dart';
 
 enum PhotoActions {
@@ -31,7 +32,7 @@ class ImageItem extends StatelessWidget {
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: _PhotoMoreButton(image.url),
+                    child: _PhotoMoreButton(image),
                   ),
                 ],
               );
@@ -44,18 +45,22 @@ class ImageItem extends StatelessWidget {
 }
 
 class _PhotoMoreButton extends StatelessWidget {
-  const _PhotoMoreButton(this.url);
+  const _PhotoMoreButton(this.image);
 
-  /// Url of the photo.
-  final String url;
+  final ImageData image;
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
       onSelected: (selection) {
         if (selection == PhotoActions.download) {
+          try {
+            downloadImage(image.downloadUrl);
+          } catch (error) {
+            showSnackbar(context, message: 'An error has occurred');
+          }
         } else if (selection == PhotoActions.share) {
-          showDialog(context: context, builder: (ctx) => _ShareImageDialog(url));
+          showDialog(context: context, builder: (ctx) => _ShareImageDialog(image.url));
         }
       },
       position: PopupMenuPosition.under,

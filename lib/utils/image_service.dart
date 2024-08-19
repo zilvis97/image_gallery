@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +7,7 @@ import 'package:image_gallery/exceptions/offline_exception.dart';
 import 'package:image_gallery/models/image_data.dart';
 import 'package:image_gallery/providers/authors_provider.dart';
 import 'package:image_gallery/providers/limit_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 
 /// Fetches images from the website.
@@ -41,4 +43,19 @@ Future<List<ImageData>?> fetchImages(WidgetRef ref, {required int page}) async {
     throw Exception('The API threw an exception: ${res.body}');
   }
   return null;
+}
+
+Future<void> downloadImage(String url) async {
+  final res = await http.get(Uri.parse(url), headers: {'Content-Type': 'application/json'});
+
+  if (res.statusCode == html.HttpStatus.ok) {
+    final dir = await getDownloadsDirectory();
+    final path = dir!.path;
+    final file = File('$path/image.jpg');
+    file.writeAsBytesSync(res.bodyBytes);
+  } else if (res.statusCode == html.HttpStatus.gatewayTimeout) {
+    throw IsOfflineException();
+  } else {
+    throw Exception('Failed to reach the given URL ${res.body}');
+  }
 }
