@@ -85,8 +85,6 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
         dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad},
       ),
       child: RefreshIndicator(
-        color: Colors.yellow,
-        backgroundColor: Colors.red,
         onRefresh: () async {
           setState(() {
             _currentPage = 1;
