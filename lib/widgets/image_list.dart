@@ -85,43 +85,43 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
         dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad},
       ),
       child: RefreshIndicator(
+        // In this case I'm assuming that upon refresh the memory is cleaned
+        // and all the loaded images are disposed, along with it loaded
+        // authors and selected filters.
         onRefresh: () async {
           setState(() {
             _currentPage = 1;
             _images.clear();
           });
           ref.invalidate(authorsProvider);
+          ref.invalidate(selectedAuthorsProvider);
 
           return _loadImages();
         },
-        child: Stack(
-          children: [
-            ListView.builder(
-              controller: _scrollController,
-              itemCount: filteredImages.length + 1,
-              itemBuilder: (context, index) {
-                if (index < filteredImages.length) {
-                  return ImageItem(filteredImages[index]);
-                }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(
-                    child: _hasMore
-                        ? filteredAuthors.isNotEmpty
-                            ? Text(
-                                "You're all caught up with this author's work!",
-                                style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
-                              )
-                            : const CircularProgressIndicator()
-                        : Text(
-                            "You're all caught up. No more images to load.",
+        child: ListView.builder(
+          controller: _scrollController,
+          itemCount: filteredImages.length + 1,
+          itemBuilder: (context, index) {
+            if (index < filteredImages.length) {
+              return ImageItem(filteredImages[index]);
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: _hasMore
+                    ? filteredAuthors.isNotEmpty
+                        ? Text(
+                            "You're all caught up with this author's work!",
                             style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
-                          ),
-                  ),
-                );
-              },
-            ),
-          ],
+                          )
+                        : const CircularProgressIndicator()
+                    : Text(
+                        "You're all caught up. No more images to load.",
+                        style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                      ),
+              ),
+            );
+          },
         ),
       ),
     );
