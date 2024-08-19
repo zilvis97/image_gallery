@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_gallery/exceptions/offline_exception.dart';
@@ -78,37 +79,52 @@ class _ImageGalleryState extends ConsumerState<ImageGallery> {
         ? _images
         : _images.where((image) => filteredAuthors.contains(image.author)).toList();
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        setState(() {
-          _images.clear();
-        });
-        return _loadImages();
-      },
-      child: ListView.builder(
-        controller: _scrollController,
-        itemCount: filteredImages.length + 1,
-        itemBuilder: (context, index) {
-          if (index < filteredImages.length) {
-            return ImageItem(filteredImages[index]);
-          }
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Center(
-              child: _hasMore
-                  ? filteredAuthors.isNotEmpty
-                      ? Text(
-                          "You're all caught up with this author's work!",
-                          style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
-                        )
-                      : const CircularProgressIndicator()
-                  : Text(
-                      "You're all caught up. No more images to load.",
-                      style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
-                    ),
-            ),
-          );
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        physics: const BouncingScrollPhysics(),
+        dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad},
+      ),
+      child: RefreshIndicator(
+        color: Colors.yellow,
+        backgroundColor: Colors.red,
+        onRefresh: () async {
+          setState(() {
+            _currentPage = 1;
+            _images.clear();
+          });
+          ref.invalidate(authorsProvider);
+
+          return _loadImages();
         },
+        child: Stack(
+          children: [
+            ListView.builder(
+              controller: _scrollController,
+              itemCount: filteredImages.length + 1,
+              itemBuilder: (context, index) {
+                if (index < filteredImages.length) {
+                  return ImageItem(filteredImages[index]);
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: _hasMore
+                        ? filteredAuthors.isNotEmpty
+                            ? Text(
+                                "You're all caught up with this author's work!",
+                                style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                              )
+                            : const CircularProgressIndicator()
+                        : Text(
+                            "You're all caught up. No more images to load.",
+                            style: theme.textTheme.bodyLarge!.copyWith(fontSize: 24),
+                          ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
